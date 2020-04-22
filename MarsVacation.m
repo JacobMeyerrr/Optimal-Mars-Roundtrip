@@ -1,6 +1,6 @@
 % AEM 4301 Project - Mars Vacation With Minimum dV - Spring 2020
 %
-% Group members: Dan Bombeck, Yinjie Liu, Jacob Meyer, RJ Nelson
+% Group members: Dan Bombeck, Lengji Liu, Jacob Meyer, RJ Nelson
 %
 clear all
 % define constants
