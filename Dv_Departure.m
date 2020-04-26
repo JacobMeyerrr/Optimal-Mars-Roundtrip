@@ -58,12 +58,12 @@ radM  = 3389.90;
          mu_p = muM;
          R = radM + h;
          vinf = vT;
-         h = R*sqrt(vinf^2+2*mu_p/R);    % angular momentum of hyperbola
+         H = R*sqrt(vinf^2+2*mu_p/R);    % angular momentum of hyperbola
          e = 1+R*vinf^2/mu_p;            % eccentricity of hyperbola
-         vP = h/R;                       % velocity of hyperobola at perigee 
+         vP = sqrt(muM*(1+e)/R);         % velocity of hyperobola at perigee 
          dvR = vinf - vP;                % required delta-v from capature orbit
          Beta = acos(1/e);               % angle between apse line and asymptote line for hyperbola  
-         sma = h^2/mu_p/(1-e^2);         % Smei-major axis 
+         sma = H^2/mu_p/(1-e^2);         % Smei-major axis 
          DELTA = (R+abs(sma))*sin(Beta); % aiming radius
 
      % PS: THe capature orbit is a ellipical orbit. However, We don have
