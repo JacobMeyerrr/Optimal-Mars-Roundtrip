@@ -36,16 +36,16 @@ TE = 2*pi/sqrt(muS/aE^3); % seconds (period of circular Earth orbit)
 TM = 2*pi/sqrt(muS/aM^3); % seconds (period of circular Mars' orbit)
 
 % obtain current true anomaly of planets ("current" = 12am, 5/1/2020)
-[r, v, jd, coem coe2] = PlanetData(3,2020,6,1,0,0,0);
+[r, v, jd, coem coe2] = PlanetData(3,2020,5,1,0,0,0);
 TAE = mod(coem(6),2*pi); % rad (starting true anomaly of Earth - Heliocentric Frame)
-[r, v, jd, coem coe2] = PlanetData(4,2020,6,1,0,0,0);
+[r, v, jd, coem coe2] = PlanetData(4,2020,5,1,0,0,0);
 TAM = mod(coem(6),2*pi)-pi*1.5/3; % rad (starting true anomaly of Mars - Heliocentric Frame)
 
 % obtain current true anomaly of planets ("current" = 12am, 5/1/2020)
 % to switch to the actual current date, don't input anything to SolarSys.m
-PlanetCoe = SolarSystem([2020 5 1],0); % obtain heliocentric COEs (all planets)
-TAE = PlanetCoe(3).trueAnom; % rad (starting true anomaly of Earth) - Heliocentric
-TAM = PlanetCoe(4).trueAnom; % rad (starting true anomaly of Mars) - Heliocentric
+% PlanetCoe = SolarSystem([2020 5 1],0); % obtain heliocentric COEs (all planets)
+% TAE = PlanetCoe(3).trueAnom; % rad (starting true anomaly of Earth) - Heliocentric
+% TAM = PlanetCoe(4).trueAnom; % rad (starting true anomaly of Mars) - Heliocentric
 
 % obtain period of Hohmann transfer orbit from Earth-to-Mars (vice versa)
 aT = (Re+Rm)/2; % km (semi-major axis of heliocentric transfer orbit)
