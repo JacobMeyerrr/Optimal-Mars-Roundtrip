@@ -11,8 +11,10 @@ muM = 0.042828e6; % km^3/s^2 (gravitational parameter of mars)
 soiE = 0.929e6; % km (sphere of influence radius for Earth)
 soiM = 0.578e6; % km (sphere of influence radius for Mars)
 
-% check for "ideal" Hohmann EM/ME transfer dates within the next ten years
-[DatesEM, DatesME, TransferTime] = opportunities(10); % E->M and M->E
+% check for "ideal" Hohmann E->M transfer dates within the next ten years
+[DatesEM,~, TransferTime] = opportunities(10); % E->M
+% check for "ideal" Hohmann M->E return transfer dates within the next 15 years
+[~, DatesME,~] = opportunities(15); % M->E
 
 % generate V's, times of flight for +-50 days from ideal Earth-to-Mars and
 % Mars-to-Earth transfers using a Lambert solver
@@ -198,9 +200,58 @@ legend(datestr(DatesME));
 axis([0 40 -30 30])
 hold off
 
+
+
 % obtain the best dv, slowest time of flight from each E-M opportunity
+for i=1:length(TotalDV_EM(:,1))
+    min = inf;
+    for j=1:length(TotalDV_EM(1,:))
+        if(TotalDV_EM(i,j) < min)
+            min = TotalDV_EM(i,j);
+            index = j;
+            EMindex(i) = j;
+        end
+    end
+    minDV_EM(i) = min;
+    minDV_Date_EM(i) = HohmannWindowEM(i,index);
+    index = inf;
+end
 
 % obtain the best dv, slowest time of flight from each M-E opportunity
+for i=1:length(TotalDV_ME(:,1))
+    min = inf;
+    index = inf;
+    for j=1:length(TotalDV_ME(1,:))
+        if(TotalDV_ME(i,j) < min)
+            min = TotalDV_ME(i,j);
+            index = j;
+            MEindex(i) = j;
+        end
+    end
+    minDV_ME(i) = min;
+    minDV_Date_ME(i) = HohmannWindowME(i,index);
+end
+
+% obtain best "roundtrip" (lowest DV) case and dates
+minEM = inf; 
+minME = inf;
+DVmin = inf;
+tofEM = tofEM./(24*3600);
+for i=1:length(minDV_EM)
+    for j=1:length(minDV_ME)
+        if(minDV_Date_EM(i)+tofEM(i,EMindex(i))<minDV_Date_ME(j))
+            DV = minDV_EM(i) + minDV_ME(j);
+            if(DV < DVmin)
+                minEM = minDV_Date_EM(i);
+                minME = minDV_Date_ME(j);
+                DVmin = DV
+                minEM_index = i;
+                minME_index = j;
+            end
+        end
+    end
+end
+
 
 % obtain "pure" Hohmann tansfer case total DV and [DVs 1-4]
 
@@ -209,9 +260,9 @@ hold off
 % plots and shit
     % plot how mission delta-v varies with TOF for best-case round-trip
     
-    % plot best Hohmann transfer 
+    % plot the "ideal" Hohmann transfer trajectory
     
-    % plot (seperately) two best round-trip transfers
+    % plot the best round-trip transfer trajectory
     
     % tables for the Hohmann and fastest round-trip case
         % "ideal" Hohmann case
@@ -222,6 +273,7 @@ hold off
             % DV (if any) upon arriving at Mars' SOI
             
             % DV to acheive our parking orbit at Mars
+            
         % more realistic fastest round-trip case
             % DV to go from LEO to a hyperbolic orbit at Earth
             
