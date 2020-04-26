@@ -39,7 +39,13 @@ radM  = 3389.90;
         % departure fomr earth. circular parking orbit
         mu_p = muE; 
         R = radE+h;
-
+        case{'mars2earth','m2e'}
+        mu_p = muM;
+        R = radM+h;
+    end
+    
+    
+    
         Vc = sqrt(mu_p/R);              % parking orbit velocity(Assuming they are all circular)
         vinf = vT;                      % hyperbolic excess velocity
         h = R*sqrt(vinf^2+2*mu_p/R);    % angular momentum of hyperbola
@@ -51,28 +57,9 @@ radM  = 3389.90;
         DELTA = (R+abs(sma))*sin(Beta); % aiming radius
 
 
-        case{'mars2earth','m2e'}
+        
 
-         % Departure from Mars. From Planetary Rendezous. The capature orbit
-         % is not circular.
-         mu_p = muM;
-         R = radM + h;
-         vinf = vT;
-         H = R*sqrt(vinf^2+2*mu_p/R);    % angular momentum of hyperbola
-         e = 1+R*vinf^2/mu_p;            % eccentricity of hyperbola
-         vPc = sqrt(muM*(1+e)/R);         % velocity of capature orbit at perigee 
-         vPh = sqrt(vinf^2+2*muM);
-         dvR = vPh - vPc;                % required delta-v from capature orbit
-         Beta = acos(1/e);               % angle between apse line and asymptote line for hyperbola  
-         sma = H^2/mu_p/(1-e^2);         % Smei-major axis 
-         DELTA = (R+abs(sma))*sin(Beta); % aiming radius
-
-     % PS: THe capature orbit is a ellipical orbit. However, We don have
-     % enought information to calculate the orbit element for capature orbit.
-     % But we know that at perigee v_capiture and v_hyperbola is the same so
-     % delta_v require is simply vinf-vP 
-
-    end
+         
     
     
 return 

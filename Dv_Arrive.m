@@ -38,11 +38,11 @@ end
 
 switch lower(dir)
     case{'earth2mars','e2m'}
-        vinf = vP-vA;
+        vinf = norm(vP-vA);
         mu = muM;
         Rp = radM;
     case{'mars2earth','m2e'}
-        vinf = vA - vP;
+        vinf = norm(vA - vP);
         mu = muE;
         Rp = radE;
 end
@@ -54,15 +54,17 @@ end
 %%
 rp = Rp + h;
 
-e = 1+rp*vinf^2/mu;
+e = 1+(rp*vinf^2)/mu;
 
-h = rp*sqrt(vinf^2+2*mu/rp);
+H = rp*sqrt(vinf^2+2*mu/rp);
 
 DELTA = rp*sqrt(1+2*mu/(rp*vinf^2)); % aiming radius (eqn 8.57)
 
 vp_hyp = sqrt(vinf^2 + 2*mu/rp); % eqn 8.58
 
-vp_capture = sqrt(mu*(1+e)/rp); % eqn 8.59
+%vp_capture = sqrt(mu*(1+e)/rp); % eqn 8.59
+
+vp_capture = sqrt(mu/rp); % ciculor capature orbit assumption  
 
 dvR = vp_hyp-vp_capture; % eqn 8.60
 
