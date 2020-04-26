@@ -21,12 +21,12 @@ tofME = [];% seconds (attempted transfer time from Mars to Earth)
 HohmannWindowEM = [];
 HohmannWindowME = [];
 for i=1:length(DatesEM)
-    HohmannWindowEM = [HohmannWindowEM;datetime(year(DatesEM(i)),month(DatesEM(i)),(day(DatesEM(i))+[-200:1:200]))];
-    tofEM = [tofEM;TransferTime+(24*60*60).*[200:-1:-200]]; % seconds (Maybe modify later!!)
+    HohmannWindowEM = [HohmannWindowEM;datetime(year(DatesEM(i)),month(DatesEM(i)),(day(DatesEM(i))+[-200:10:200]))];
+    tofEM = [tofEM;TransferTime+(24*60*60).*[200:-10:-200]]; % seconds (Maybe modify later!!)
 end
 for i=1:length(DatesME)
-    HohmannWindowME = [HohmannWindowME;datetime(year(DatesME(i)),month(DatesME(i)),(day(DatesME(i))+[-200:1:200]))];
-    tofME = [tofME;TransferTime+(24*60*60).*[200:-1:-200]]; % seconds (Check later!!!)
+    HohmannWindowME = [HohmannWindowME;datetime(year(DatesME(i)),month(DatesME(i)),(day(DatesME(i))+[-200:10:200]))];
+    tofME = [tofME;TransferTime+(24*60*60).*[200:-10:-200]]; % seconds (Check later!!!)
 end
 % <debugging only>
 disp(HohmannWindowEM);
@@ -80,7 +80,7 @@ plot(LambertV1EM(3,:)), hold on
 plot(LambertV1EM(4,:)), hold on
 plot(LambertV1EM(5,:)), hold on
 legend(datestr(DatesEM));
-axis([0 400 30 35]);
+axis([0 40 30 35]);
 min(LambertV1EM);
 max(LambertV1EM);
 hold off
@@ -127,7 +127,7 @@ plot(LambertV1ME(3,:)), hold on
 plot(LambertV1ME(4,:)), hold on
 plot(LambertV1ME(5,:)), hold on
 legend(datestr(DatesME));
-axis([0 400 0 35]);
+axis([0 40 0 35]);
 min(LambertV1EM);
 max(LambertV1EM);
 hold off
@@ -151,7 +151,7 @@ for i=1:length(HohmannWindowEM(:,1))
         MarsArrDay = month(MarsArrDate);
         [rM, VMars, jd, coem coe2] = PlanetData(4, MarsArrYear, MarsArrMonth, MarsArrDay,0,0,0);
         VMars = norm(VMars);
-        [DV1,Beta,DELTA] =  Dv_Departure(V1,350,'earth2mars'); % departure
+        [DV1,Beta,DELTA] =  Dv_Departure(V1,350,'earth2mars'); % departure 
         [DV2,Beta,DELTA] = Dv_Arrive(V2,VMars,500,'earth2mars');% arrival 
         TotalDV_EM(i,j) = DV1 + DV2;
     end
@@ -163,7 +163,7 @@ plot(TotalDV_EM(3,:)), hold on
 plot(TotalDV_EM(4,:)), hold on
 plot(TotalDV_EM(5,:)), hold on
 legend(datestr(DatesEM));
-axis([0 400 15 35])
+axis([0 40 15 35])
 hold off
 
 % obtain delta-v's for every Mars2Earth opportunity
@@ -185,7 +185,7 @@ for i=1:length(HohmannWindowME(:,1))
         VEarth = norm(VEarth);
         [DV1,Beta,DELTA] =  Dv_Departure(V1,500,'mars2earth'); % departure
         [DV2,Beta,DELTA] = Dv_Arrive(V2,VEarth,350,'mars2earth');% arrival 
-        TotalDV_ME(i,j) = abs(DV2);
+        TotalDV_ME(i,j) = abs(DV1)+ abs(DV2);
     end
 end
 figure(4)
@@ -195,7 +195,7 @@ plot(TotalDV_ME(3,:)), hold on
 plot(TotalDV_ME(4,:)), hold on
 plot(TotalDV_ME(5,:)), hold on
 legend(datestr(DatesME));
-axis([0 400 0 1])
+axis([0 40 -30 30])
 hold off
 
 % obtain the best dv, slowest time of flight from each E-M opportunity
