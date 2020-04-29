@@ -23,12 +23,12 @@ tofME = [];% seconds (attempted transfer time from Mars to Earth)
 HohmannWindowEM = [];
 HohmannWindowME = [];
 for i=1:length(DatesEM)
-    HohmannWindowEM = [HohmannWindowEM;datetime(year(DatesEM(i)),month(DatesEM(i)),(day(DatesEM(i))+[-200:10:200]))];
-    tofEM = [tofEM;TransferTime+(24*60*60).*[200:-10:-200]]; % seconds (Maybe modify later!!)
+    HohmannWindowEM = [HohmannWindowEM;datetime(year(DatesEM(i)),month(DatesEM(i)),(day(DatesEM(i))+[-200:5:200]))];
+    tofEM = [tofEM;TransferTime+(24*60*60).*[200:-5:-200]]; % seconds (Maybe modify later!!)
 end
 for i=1:length(DatesME)
-    HohmannWindowME = [HohmannWindowME;datetime(year(DatesME(i)),month(DatesME(i)),(day(DatesME(i))+[-200:10:200]))];
-    tofME = [tofME;TransferTime+(24*60*60).*[200:-10:-200]]; % seconds (Check later!!!)
+    HohmannWindowME = [HohmannWindowME;datetime(year(DatesME(i)),month(DatesME(i)),(day(DatesME(i))+[-200:5:200]))];
+    tofME = [tofME;TransferTime+(24*60*60).*[200:-5:-200]]; % seconds (Check later!!!)
 end
 % <debugging only>
 disp(HohmannWindowEM);
@@ -42,6 +42,13 @@ length(HohmannWindowME(:,1));
 % Cont: Earth2Mars V1's, V2's
 LambertV1EM = [];
 LambertV2EM = [];
+
+LambertV1EMx = [];
+LambertV1EMy = [];
+LambertV1EMz = [];
+LambertV2EMx = [];
+LambertV2EMy = [];
+LambertV2EMz = [];
 for i=1:length(HohmannWindowEM(:,1))
     for j=1:length(HohmannWindowEM(1,:))
         % get current date
@@ -71,6 +78,13 @@ for i=1:length(HohmannWindowEM(:,1))
         %disp(LambertV1)
         LambertV1EM(i,j) = norm(LambertV1);
         LambertV2EM(i,j) = norm(LambertV2);
+        
+        LambertV1EMx(i,j) = LambertV1(1);
+        LambertV1EMy(i,j) = LambertV1(2);
+        LambertV1EMz(i,j) = LambertV1(3);
+        LambertV2EMx(i,j) = LambertV2(1);
+        LambertV2EMy(i,j) = LambertV2(2);
+        LambertV2EMz(i,j) = LambertV2(3);
     end
 end
 % disp(LambertV1EM)
@@ -82,7 +96,7 @@ plot(LambertV1EM(3,:)), hold on
 plot(LambertV1EM(4,:)), hold on
 plot(LambertV1EM(5,:)), hold on
 legend(datestr(DatesEM));
-axis([0 40 30 35]);
+axis([0 80 30 35]);
 min(LambertV1EM);
 max(LambertV1EM);
 hold off
@@ -90,6 +104,13 @@ hold off
 % Cont: Mars2Earth V1's, V2's
 LambertV1ME = [];
 LambertV2ME = [];
+
+LambertV1MEx = [];
+LambertV1MEy = [];
+LambertV1MEz = [];
+LambertV2MEx = [];
+LambertV2MEy = [];
+LambertV2MEz = [];
 for i=1:length(HohmannWindowME(:,1))
     for j=1:length(HohmannWindowME(1,:))
         % get current date
@@ -118,6 +139,13 @@ for i=1:length(HohmannWindowME(:,1))
         %disp(LambertV1)
         LambertV1ME(i,j) = norm(LambertV1);
         LambertV2ME(i,j) = norm(LambertV2);
+        
+        LambertV1MEx(i,j) = LambertV1(1);
+        LambertV1MEy(i,j) = LambertV1(2);
+        LambertV1MEz(i,j) = LambertV1(3);
+        LambertV2MEx(i,j) = LambertV2(1);
+        LambertV2MEy(i,j) = LambertV2(2);
+        LambertV2MEz(i,j) = LambertV2(3);
     end
 end
 % disp(LambertV1EM)
@@ -129,7 +157,7 @@ plot(LambertV1ME(3,:)), hold on
 plot(LambertV1ME(4,:)), hold on
 plot(LambertV1ME(5,:)), hold on
 legend(datestr(DatesME));
-axis([0 40 0 35]);
+axis([0 80 0 35]);
 min(LambertV1EM);
 max(LambertV1EM);
 hold off
@@ -142,18 +170,23 @@ for i=1:length(HohmannWindowEM(:,1))
     for j=1:length(HohmannWindowEM(1,:))
         V1 = LambertV1EM(i,j);
         V2 = LambertV2EM(i,j);
-        MarsArrDate = DatesEM(i);
-        MarsArrYear = year(MarsArrDate);
-        MarsArrMonth = month(MarsArrDate);
-        MarsArrDay = month(MarsArrDate);
+        
+        V1vec = [LambertV1EMx(i,j);LambertV1EMy(i,j);LambertV1EMz(i,j)];
+        V2vec = [LambertV2EMx(i,j);LambertV2EMy(i,j);LambertV2EMz(i,j)];
+        
+       EarthDepDate = DatesEM(i);
+        EarthDepYear = year(EarthDepDate);
+        EarthDepMonth = month(EarthDepDate);
+        EarthDepDay = month(EarthDepDate);
         Time2MarsDays = tofEM(i,j)/(24*60*60);
-        MarsArrDate = datetime(MarsArrYear,MarsArrMonth,ceil(MarsArrDay+Time2MarsDays));
+        MarsArrDate = datetime(EarthDepYear,EarthDepMonth,ceil(EarthDepDay+Time2MarsDays));
         MarsArrYear = year(MarsArrDate);
         MarsArrMonth = month(MarsArrDate);
         MarsArrDay = month(MarsArrDate);
         [rM, VMars, jd, coem coe2] = PlanetData(4, MarsArrYear, MarsArrMonth, MarsArrDay,0,0,0);
+        [rM, VEarth, jd, coem coe2] = PlanetData(3, EarthDepYear, EarthDepMonth, EarthDepDay,0,0,0);
         VMars = norm(VMars);
-        [DV1,Beta,DELTA] =  Dv_Departure(V1,350,'earth2mars'); % departure 
+        [DV1,Beta,DELTA] =  Dv_Departure(V1vec,VEarth,350,'earth2mars'); % departure 
         [DV2,Beta,DELTA] = Dv_Arrive(V2,VMars,500,'earth2mars');% arrival 
         TotalDV_EM(i,j) = DV1 + DV2;
     end
@@ -165,7 +198,7 @@ plot(TotalDV_EM(3,:)), hold on
 plot(TotalDV_EM(4,:)), hold on
 plot(TotalDV_EM(5,:)), hold on
 legend(datestr(DatesEM));
-axis([0 40 15 35])
+axis([0 80 4 10])
 hold off
 
 % obtain delta-v's for every Mars2Earth opportunity
@@ -174,18 +207,23 @@ for i=1:length(HohmannWindowME(:,1))
     for j=1:length(HohmannWindowME(1,:))
         V1 = LambertV1ME(i,j);
         V2 = LambertV2ME(i,j);
-        EarthArrDate = DatesME(i);
-        EarthArrYear = year(EarthArrDate);
-        EarthArrMonth = month(EarthArrDate);
-        EarthArrDay = month(EarthArrDate);
+        
+        V1vec = [LambertV1MEx(i,j);LambertV1MEy(i,j);LambertV1MEz(i,j)];
+        V2vec = [LambertV2MEx(i,j);LambertV2MEy(i,j);LambertV2MEz(i,j)];
+        
+        MarsDepDate = DatesME(i);
+        MarsDepYear = year(MarsDepDate);
+        MarsDepMonth = month(MarsDepDate);
+        MarsDepDay = month(MarsDepDate);
         Time2EarthDays = tofME(i,j)/(24*60*60);
-        EarthArrDate = datetime(EarthArrYear,EarthArrMonth,ceil(EarthArrDay+Time2EarthDays));
+        EarthArrDate = datetime(MarsDepYear,MarsDepMonth,ceil(MarsDepDay+Time2EarthDays));
         EarthArrYear = year(EarthArrDate);
         EarthArrMonth = month(EarthArrDate);
         EarthArrDay = month(EarthArrDate);
-        [rM, VEarth, jd, coem coe2] = PlanetData(4, EarthArrYear, EarthArrMonth, EarthArrDay,0,0,0);
+        [rM, VEarth, jd, coem coe2] = PlanetData(3, EarthArrYear, EarthArrMonth, EarthArrDay,0,0,0);
+        [rM, VMars, jd, coem coe2] = PlanetData(4, MarsDepYear, MarsDepMonth, MarsDepDay,0,0,0);
         VEarth = norm(VEarth);
-        [DV1,Beta,DELTA] =  Dv_Departure(V1,500,'mars2earth'); % departure
+        [DV1,Beta,DELTA] =  Dv_Departure(V1vec,VMars,500,'mars2earth'); % departure
         [DV2,Beta,DELTA] = Dv_Arrive(V2,VEarth,350,'mars2earth');% arrival 
         TotalDV_ME(i,j) = abs(DV1)+ abs(DV2);
     end
@@ -197,7 +235,7 @@ plot(TotalDV_ME(3,:)), hold on
 plot(TotalDV_ME(4,:)), hold on
 plot(TotalDV_ME(5,:)), hold on
 legend(datestr(DatesME));
-axis([0 40 -30 30])
+axis([0 80 4 10])
 hold off
 
 
@@ -251,6 +289,10 @@ for i=1:length(minDV_EM)
         end
     end
 end
+
+disp("Minimum DV Earth to Mars date: " + datestr(minDV_Date_EM(minEM_index)))
+disp("Minimum DV Mars to Earth date: " + datestr(minDV_Date_ME(minME_index)))
+disp("Minimum Round-trip DV for this trip is: "+num2str(DVmin))
 
 
 % obtain "pure" Hohmann tansfer case total DV and [DVs 1-4]
