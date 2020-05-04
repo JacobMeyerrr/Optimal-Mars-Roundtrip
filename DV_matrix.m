@@ -3,12 +3,15 @@ function DV = DV_matrix (S,D,TOF)
 % Create a empety cell array for storing DV
 % 
 % INPUT 
-% "S"     [n,1] datetime vector 
-% "D"     [n,1] Transfer starting date vector 
+% "S"     [i,1] datetime vector 
+% "D"     [m,1] Transfer starting date vector 
 % "TOF"   [1,n]  TOF vector 
 %  
 % OUTPUT 
-% "DV"    a empet cell array to store DV
+% "DV"    a empet cell array to store DV 
+%         DV{:,1} is the Hohmann transfer date
+%         DV{:,2} is the starting date and transfer time variation
+%         combination matrix for storing the dv value. [n,m]
 
 % IMPORTANT NOTE 
 % THIS function only creat EMPTY cell array for storing DV 
@@ -17,14 +20,18 @@ function DV = DV_matrix (S,D,TOF)
 
 
 
-if(nargin<1)
+if(nargin<1 || nargin<2 || nargin<3)
     warning('NO input detected!')
-    I = 5; J = 5; K = 5;
+    warning('date = 1:10')
+    warning('TOF = 1:20')
+    I = 5; J = 10; K = 20;
     for i = 1:I
 
-        DV{i,1} = datetime([1111 11 1 1 1 1]);
-        for j = 1:J
-             dv(j,1:I) = j;
+        DV{i,1} = datetime([i*1111 i i i i i*10]);
+        for j = 1:K
+            for k = 1:J
+                dv(j,k) = rand(1);
+            end
         end
         DV{i,2} = dv;
     end
@@ -35,7 +42,7 @@ else
     I = length(S);
     J = length(D);
     K = length(TOF);
-    dv = zeros(K,J);
+    %dv = zeros(K,J);
     for i = 1:I
         DV{i,1} = S(i);
         DV{i,2} = zeros(K,J);
