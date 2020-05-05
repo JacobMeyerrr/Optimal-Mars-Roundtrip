@@ -28,12 +28,12 @@ tofME = [];% seconds (attempted transfer time from Mars to Earth)
 HohmannWindowEM = [];
 HohmannWindowME = [];
 for i=1:length(DatesEM)
-    HohmannWindowEM = [HohmannWindowEM;datetime(year(DatesEM(i)),month(DatesEM(i)),(day(DatesEM(i))+[-200:5:200]))];
-    tofEM = [tofEM;TransferTime+(24*60*60).*[200:-5:-200]]; % seconds (Maybe modify later!!)
+    HohmannWindowEM = [HohmannWindowEM;datetime(year(DatesEM(i)),month(DatesEM(i)),(day(DatesEM(i))+[-500:5:200]))];
+    tofEM = [tofEM;TransferTime+(24*60*60).*[500:-5:-200]]; % seconds (Maybe modify later!!)
 end
 for i=1:length(DatesME)
-    HohmannWindowME = [HohmannWindowME;datetime(year(DatesME(i)),month(DatesME(i)),(day(DatesME(i))+[-200:5:200]))];
-    tofME = [tofME;TransferTime+(24*60*60).*[200:-5:-200]]; % seconds (Check later!!!)
+    HohmannWindowME = [HohmannWindowME;datetime(year(DatesME(i)),month(DatesME(i)),(day(DatesME(i))+[-500:5:200]))];
+    tofME = [tofME;TransferTime+(24*60*60).*[500:-5:-200]]; % seconds (Check later!!!)
 end
 % <debugging only>
 %disp(HohmannWindowEM);
@@ -43,11 +43,11 @@ end
 %size(tofME);
 %length(HohmannWindowME(:,1));
 % ^^debigging/testing only^^
-xindx = -200:5:200;
+xindx = -500:5:200;
 %%
 % Cont: Earth2Mars V1's, V2's
-LambertV1EM = zeros(5,81);
-LambertV2EM = zeros(5,81);
+LambertV1EM = zeros(5,length(xindx));
+LambertV2EM = zeros(5,length(xindx));
 
 
 for i=1:length(HohmannWindowEM(:,1))
@@ -87,7 +87,7 @@ LambertEM_Tot = LambertV1EM+LambertV2EM;
 % disp(LambertV1EM)
 % disp(LambertV2EM)
 figure(1)
-xindx = -200:5:200;
+%xindx = -300:5:200;
 plot(xindx,LambertEM_Tot)
 %plot(xindx,LambertV1EM(1,:)), hold on
 %plot(xindx,LambertV1EM(2,:))
@@ -102,8 +102,8 @@ title('E2M')
 hold off
 %%
 % Cont: Mars2Earth V1's, V2's
-LambertV1ME = zeros(5,81);
-LambertV2ME = zeros(5,81);
+LambertV1ME = zeros(5,length(xindx));
+LambertV2ME = zeros(5,length(xindx));
 
 
 for i=1:length(HohmannWindowME(:,1))
@@ -128,8 +128,7 @@ for i=1:length(HohmannWindowME(:,1))
 %         [coeE,rE, vE, jdE] = planet_elements_and_sv(3, ArrYear, ArrMonth, ArrDay,0,0,0); % Question: is planetdata.m even reliable???
         [rE, vE, ~, ~, ~] = PlanetData(3, DepYear, DepMonth, DepDay,0,0,0);
         [rM, vM, ~, ~, ~] = PlanetData(4, ArrYear, ArrMonth, ArrDay,0,0,0);
-        rE = rE;
-        rM = rM;
+        
         [LambertV1,LambertV2,~] = LambertSolverND( rM, rE, TOF, muS, dir );
         %disp(LambertV1)
         LambertV1ME(i,j) = norm(LambertV1-vM)+Dv_Departure(LambertV1,vM,500,'m2e');
@@ -157,10 +156,71 @@ title('M2E')
 hold off
 %%
 
-Tot = LambertEM_Tot+LambertME_Tot(1:5,:);
+Tot = LambertEM_Tot+LambertME_Tot(3:7,:);
 
 figure(3)
 plot(xindx,Tot)
 legend(datestr(DatesME))
 title('TOT')
 toc
+
+%%
+muS   = 1.327e11; 
+rE    = 149.6e6; 
+rM    = 1.524*149.6e6;
+
+[DE,DM] = HohmannWindow(10);
+%%
+Dep = datetime(DE);
+Ret = datetime(DM);
+%zeros(length(Dep),length(-20:20))
+%J0D = J0(year(Dep),month(Dep),day(Dep));
+E2M_start = {zeros(length(Dep),1),zeros(1,length(-20:20))};
+M2E_return ={zeros(length(Ret),1),zeros(1,length(-20:20))};
+%%
+for i = 1:length(Dep)
+    
+    E2M_start{i,1} = Dep(i);
+    E2M_start{i,2} = (Dep(i)+days(-20:20));
+        
+end
+
+for i = 1:length(Ret)
+    
+    M2E_return{i,1} = Ret(i);
+    M2E_return{i,2} = (Ret(i)+days(-20:20));
+    
+end
+
+
+[E2M,M2E] = Mission_start_day(DE,DM,20,20,1);
+
+%%
+muS   = 1.327e11; 
+rE    = 149.6e6; 
+rM    = 1.524*149.6e6;
+[DE,DM] = HohmannWindow(10);
+D1 = datevec(DE(2,:));
+D2 = datevec(DM(2,:));
+[psE, ~, ~, ~ ,~] = PlanetData(3,D1(1),D1(2),D1(3),D1(4),D1(5),round(D1(6)));
+[psM, ~, ~, ~, ~] = PlanetData(4,D1(1),D1(2),D1(3),D1(4),D1(5),round(D1(6)));
+thEi = atan2(psE(2),psE(1));
+thMi = atan2(psM(2),psM(1));
+[tW,tT,tSyn] = HohmannTransferAnimation( rE, rM, thEi, thMi, muS );
+
+[psE2, ~, ~, ~ ,~] = PlanetData(3,D2(1),D2(2),D2(3),D2(4),D2(5),round(D2(6)));
+[psM2, ~, ~, ~, ~] = PlanetData(4,D2(1),D2(2),D2(3),D2(4),D2(5),round(D2(6)));
+thEi2 = atan2(psE2(2),psE2(1));
+thMi2 = atan2(psM2(2),psM2(1));
+[tW2,tT2,tSyn2] = HohmannTransferAnimation( rM, rE, thMi2, thEi2, muS );
+
+
+%%
+close all 
+ 
+S = datetime('now') + days(1:5);
+D = 1:10;
+TOF = 1:20;
+DV = DV_matrix(S,D,TOF);
+dv = DV_matrix;
+V = Plot_DV(dv,[1:10],[1:20])
