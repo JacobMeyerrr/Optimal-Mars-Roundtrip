@@ -1,4 +1,4 @@
-function DV = Plot_DV(D,date,TOF)
+function DV = Plot_DV(D,date,TOF,count,dir)
 
 %DV_plot plot DV 
 % Plot the surface plot for eace DV 
@@ -21,32 +21,43 @@ function DV = Plot_DV(D,date,TOF)
 
 %D = dv;
 
+% sort out graph title based on direction of flight 
+% two options here: Earth-to-Mars "e2m" and Mars-to-Earth "m2e"
+if(dir=="e2m")
+    tit = "Earth-to-Mars DVs Near The Departure Date of ";
+elseif(dir=="m2e")
+    tit = "Mars-to-Earth DVs Near The Departure Date of ";
+end
+    
 % Preallocating the array 
 [i,j] = size(D);
 string = strings(i,1);
  
 for k = 1:i
     
-   string(k) = D{k,1};
+   string(k) = datetime(year(D{k,1}),month(D{k,1}),day(D{k,1}));
      
 end
 
 
 % Ploting the surface plot for each DV 
 for k = 1:i
-    figure(k)
+    figure(k+count)
     d_v = D{k,2};
     %[n,m] = size(d_v);
     xind = date;
-    yind = TOF ;
+    yind = TOF./(24*3600);
     surf(xind,yind,d_v,'edgecolor','none');
-    grid on,rotate3d on, xlabel('n'),ylabel('m'),colorbar
+    grid on,rotate3d on, xlabel('Starting Day Variation (days)'),...
+        ylabel('Time of Flight Duration (days)'),...
+        zlabel('DeltaV Expended (km/s)'),colorbar
     hold on
     shading interp
-    title(string(k));
+    title(tit+string(k));
     [v,row]=min(d_v); [v,col]=min(v); row=row(col);
     plot3(xind(col),yind(row),d_v(row,col),'g.','markersize',30)
     legend('Total delta v ','Min DV','location','northeast')
+%     view(120,30)
     hold off
     DV{k,1} = string(k);
     DV{k,2} = d_v(row,col);
