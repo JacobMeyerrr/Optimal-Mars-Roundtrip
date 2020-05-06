@@ -528,6 +528,47 @@ BB = Plot3DOrbit( coeE, muS, 0, 365.256, B );
 
 Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MaxDV*86400, BB );
 
+% r = [rM';rM';rE']
+% v = [LambertV1';vM';vE']
+% t = {86400*[0:1:TransferTimeME_MaxDV] 86400*[0:1:687] 86400*[0:1:366]}
+% title = "Null"
+% num = 13
+% mCraft = 10000; % kg (estimate of our spacecraft's mass)
+% mMars = 6.39e23; % kg (mass of mars)
+% mEarth = 5.972e24; % kg (earth mass)
+% m = [mCraft mMars mEarth]'; % km (all masses in order)
+% [x] = PlotLambertHohmann(r,v,t,title,num,m)
+
+%% Fastest Transfer Time Plot 
+% *(Fastest Trafser time = least amount of time off of Earth)
+
+% Find two windows that have the least time spent in space
+
+% find the exact dates that lead to the overall least time spent in space
+
+
+% Fastest transfer time earth to mars calculations
+
+% Fastest transfer time Earth to Mars graphs
+
+
+% Fastest transfer time mars to earth calculations
+
+% Fastest transfer time mars to Earth graphs
+
+
+
+
+
+%% Hohmann Case Plot
+HohmannPlot(19)
+
+%% DV table
+
+
+
+%%
+
 toc
 
 %%

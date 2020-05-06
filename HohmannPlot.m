@@ -1,4 +1,4 @@
-function[f] = HohmannPlot
+function[f] = HohmannPlot(num)
 
 rE    = 149.6e6; 
 rM    = 1.524*149.6e6;
@@ -9,6 +9,7 @@ radE  = 6378.14;
 radM  = 3389.90;
 
 thx = linspace(0,2*pi,300);
+figure(num)
 plot(0,0,'ro','markersize',10,'MarkerFaceColor',[1,0,0]), hold on, axis equal, grid on
 plot(rE,0,'bo','markersize',10,'MarkerFaceColor',[0,0,1])
 plot(-rM,0,'yo','markersize',10,'MarkerFaceColor',[1,1,0])
