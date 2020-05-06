@@ -40,11 +40,11 @@ radM  = 3389.90;
         % departure fomr earth. circular parking orbit
         mu_p = muE; 
         R = radE+h;
-        vinf = norm(vT) - norm(vP);
+        vinf = norm(vT-vP);
         case{'mars2earth','m2e'}
         mu_p = muM;
         R = radM+h;
-        vinf = norm(vP) - norm(vT);
+        vinf = norm(vP-vT);
     end
     
     

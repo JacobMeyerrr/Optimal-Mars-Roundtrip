@@ -56,7 +56,7 @@ for k = 1:i
     shading interp
     title(tit+string(k));
     [v,row]=min(d_v); [v,col]=min(v); row=row(col);
-    [v,rowM]=Max(d_v); [v,colM]=Max(v); rowM=row(colM);
+    [v,rowM]=max(d_v);[v,colM]=max(v); rowM=rowM(colM);
     plot3(xind(col),yind(row),d_v(row,col),'g.','markersize',30)
     legend('Total delta v ','Min DV','location','northeast')
     if(dir=="e2m")
