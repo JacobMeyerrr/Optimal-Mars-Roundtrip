@@ -25,6 +25,7 @@ function DV = Plot_DV(D,date,TOF,count,dir)
 % two options here: Earth-to-Mars "e2m" and Mars-to-Earth "m2e"
 if(dir=="e2m")
     tit = "Earth-to-Mars DVs Near The Departure Date of ";
+    
 elseif(dir=="m2e")
     tit = "Mars-to-Earth DVs Near The Departure Date of ";
 end
@@ -55,13 +56,18 @@ for k = 1:i
     shading interp
     title(tit+string(k));
     [v,row]=min(d_v); [v,col]=min(v); row=row(col);
+    [v,rowM]=Max(d_v); [v,colM]=Max(v); rowM=row(colM);
     plot3(xind(col),yind(row),d_v(row,col),'g.','markersize',30)
     legend('Total delta v ','Min DV','location','northeast')
-%     view(120,30)
+    if(dir=="e2m")
+        view(120,30)
+    end
     hold off
     DV{k,1} = string(k);
     DV{k,2} = d_v(row,col);
     DV{k,3} = [row,col];
+    DV{k,4} = d_v(rowM,colM);
+    DV{k,5} = [rowM,colM];
 end
 
 return
