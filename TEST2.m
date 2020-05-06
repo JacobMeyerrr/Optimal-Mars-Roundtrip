@@ -276,10 +276,10 @@ for i=1:length(DV_ME) % iterate over all dates
      end
 end
 %%
-V_EM = Plot_DV(DV_EM,D,TOF,0,"e2m")
+V_EM = Plot_DV(DV_EM,D,TOF,0,"e2m");
 
 %%
-V_ME = Plot_DV(DV_ME,D,TOF,5,"m2e")
+V_ME = Plot_DV(DV_ME,D,TOF,5,"m2e");
 
 %%
 RoundtripDVs = ["Hello"];
@@ -358,119 +358,175 @@ for i=1:length(DatesEM)
 end
 
 %% Find Minimum DeltaV Stuff
-minimumDV = min(TotDV(:))
-[MinDVrow,MinDVcol] = find(TotDV==minimumDV)
-MdvWindowDateEM = DatesEM(MinDVrow)
-MdvWindowDateME = DatesME(MinDVcol)
+minimumDV = min(TotDV(:));
+[MinDVrow,MinDVcol] = find(TotDV==minimumDV);
+MdvWindowDateEM = DatesEM(MinDVrow);
+MdvWindowDateME = DatesME(MinDVcol);
 
-MdvExactDateEM = MdvWindowDateEM + D(V_EM{MinDVrow,3}(2))
-MdvExactDateME = MdvWindowDateME + D(V_ME{MinDVcol,3}(2))
-TransferTimeEM_MinDV = TOF(V_EM{MinDVrow,3}(1))/(24*3600)
-TransferTimeME_MinDV = TOF(V_ME{MinDVcol,3}(1))/(24*3600)
+MdvExactDateEM = MdvWindowDateEM + D(V_EM{MinDVrow,3}(2));
+MdvExactDateME = MdvWindowDateME + D(V_ME{MinDVcol,3}(2));
+TransferTimeEM_MinDV = TOF(V_EM{MinDVrow,3}(1))/(24*3600);
+TransferTimeME_MinDV = TOF(V_ME{MinDVcol,3}(1))/(24*3600);
 
-TransferTimeHohmann = TransferTime/(24*3600)
+TransferTimeHohmann = TransferTime/(24*3600);
 
-MinDVindexROW = V_EM{MinDVcol,3}(1)
-MinDVindexCol = V_EM{MinDVcol,3}(2)
-
+MinDVindexROW = V_EM{MinDVcol,3}(1);
+MinDVindexCol = V_EM{MinDVcol,3}(2);
 % Earth To Mars
-Edep = MdvExactDateEM
-Marr = Edep+TransferTimeEM_MinDV
+Edep = MdvExactDateEM;
+Marr = Edep+TransferTimeEM_MinDV;
 [rE, vE, ~, ~, ~] = PlanetData(3, year(Edep), month(Edep), day(Edep),hour(Edep),minute(Edep),second(Edep));
 [rM, vM, ~, ~, ~] = PlanetData(4, year(Marr), month(Marr), day(Marr), hour(Marr), minute(Marr), second(Marr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rE, rM, TransferTimeEM_MinDV*24*3600, muS, 'pro' );
-minDVe2mDVdep = DV_EM{MinDVcol,3}(MinDVindexROW,MinDVindexCol)
-minDVe2mDVarr = DV_EM{MinDVcol,4}(MinDVindexROW,MinDVindexCol)
+minDVe2mDVdep = DV_EM{MinDVcol,3}(MinDVindexROW,MinDVindexCol);
+minDVe2mDVarr = DV_EM{MinDVcol,4}(MinDVindexROW,MinDVindexCol);
 
-minDVe2m = V_EM{MinDVcol,2}(1)
+minDVe2m = V_EM{MinDVcol,2}(1);
 
 
 % Plot Mars-to-Earth orbits (after obtaining heliocentric COEs for all three orbits)
 % Graph Transfer Orbit, Earth Orbit, and Mars orbit all on one 3d orbit plot
 
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,LambertV1,muS);
+coeL = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,vE,muS);
+coeE = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,vM,muS);
+coeM = [a,inc,W,w,e,th];
+
+E = Plot3DOrbit( coeM, muS, 0, 686.971 );
+
+EE = Plot3DOrbit( coeE, muS, 0, 365.256, E );
+
+Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MinDV*86400, EE );
+
+
 % END MARS2EARTH STUFF
 
-MinDVindexROW = V_ME{MinDVcol,3}(1)
-MinDVindexCol = V_ME{MinDVcol,3}(2)
+MinDVindexROW = V_ME{MinDVcol,3}(1);
+MinDVindexCol = V_ME{MinDVcol,3}(2);
 % Mars To Earth
-Mdep = MdvExactDateME
-Earr = Mdep+TransferTimeME_MinDV
+Mdep = MdvExactDateME;
+Earr = Mdep+TransferTimeME_MinDV;
 [rM, vM, ~, ~, ~] = PlanetData(4, year(Mdep), month(Mdep), day(Mdep),hour(Mdep),minute(Mdep),second(Mdep));
 [rE, vE, ~, ~, ~] = PlanetData(3, year(Earr), month(Earr), day(Earr), hour(Earr), minute(Earr), second(Earr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rM, rE, TransferTimeME_MinDV*24*3600, muS, 'pro' );
-minDVm2eDVdep = DV_ME{MinDVcol,3}(MinDVindexROW,MinDVindexCol)
-minDVm2eDVarr = DV_ME{MinDVcol,4}(MinDVindexROW,MinDVindexCol)
+minDVm2eDVdep = DV_ME{MinDVcol,3}(MinDVindexROW,MinDVindexCol);
+minDVm2eDVarr = DV_ME{MinDVcol,4}(MinDVindexROW,MinDVindexCol);
 
-minDVm2e = V_ME{MinDVcol,2}(1)
+minDVm2e = V_ME{MinDVcol,2}(1);
 
-roundtripDV4MIN = minDVe2m+minDVm2e
+roundtripDV4MIN = minDVe2m+minDVm2e;
 
 
 % Plot Mars-to-Earth orbits (after obtaining heliocentric COEs for all three orbits)
 % Graph Transfer Orbit, Earth Orbit, and Mars orbit all on one 3d orbit plot
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,LambertV1,muS);
+coeL = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,vE,muS);
+coeE = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,vM,muS);
+coeM = [a,inc,W,w,e,th];
+
+C = Plot3DOrbit( coeM, muS, 0, 686.971 );
+
+CC = Plot3DOrbit( coeE, muS, 0, 365.256, C );
+
+Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MinDV*86400, CC );
 
 
 %%% Graphs and shit later, show the orbit, include this data in DV "1-4" table
 
 %% MAXIMUM DELTAV STUFF!!!!!
 disp("........................RUNNING IT AGAIN......................")
-maximumDV = max(TotDVmax(:))
-[MaxDVrow,MaxDVcol] = find(TotDVmax==maximumDV)
-MAXdvWindowDateEM = DatesEM(MaxDVrow)
-MAXdvWindowDateME = DatesME(MaxDVcol)
+maximumDV = max(TotDVmax(:));
+[MaxDVrow,MaxDVcol] = find(TotDVmax==maximumDV);
+MAXdvWindowDateEM = DatesEM(MaxDVrow);
+MAXdvWindowDateME = DatesME(MaxDVcol);
 
-MAXdvExactDateEM = MAXdvWindowDateEM + D(V_EM{MaxDVrow,5}(2))
-MAXdvExactDateME = MAXdvWindowDateME + D(V_ME{MaxDVcol,5}(2))
-TransferTimeEM_MaxDV = TOF(V_EM{MaxDVrow,5}(1))/(24*3600)
-TransferTimeME_MaxDV = TOF(V_ME{MaxDVcol,5}(1))/(24*3600)
+MAXdvExactDateEM = MAXdvWindowDateEM + D(V_EM{MaxDVrow,5}(2));
+MAXdvExactDateME = MAXdvWindowDateME + D(V_ME{MaxDVcol,5}(2));
+TransferTimeEM_MaxDV = TOF(V_EM{MaxDVrow,5}(1))/(24*3600);
+TransferTimeME_MaxDV = TOF(V_ME{MaxDVcol,5}(1))/(24*3600);
 
-TransferTimeHohmann = TransferTime/(24*3600)
+TransferTimeHohmann = TransferTime/(24*3600);
 
-MaxDVindexROW = V_EM{MinDVcol,5}(1)
-MaxDVindexCol = V_EM{MinDVcol,5}(2)
-
+MaxDVindexROW = V_EM{MinDVcol,5}(1);
+MaxDVindexCol = V_EM{MinDVcol,5}(2);
 % Earth To Mars
-Edep = MAXdvExactDateEM
-Marr = Edep+TransferTimeEM_MaxDV
+Edep = MAXdvExactDateEM;
+Marr = Edep+TransferTimeEM_MaxDV;
 [rE, vE, ~, ~, ~] = PlanetData(3, year(Edep), month(Edep), day(Edep),hour(Edep),minute(Edep),second(Edep));
 [rM, vM, ~, ~, ~] = PlanetData(4, year(Marr), month(Marr), day(Marr), hour(Marr), minute(Marr), second(Marr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rE, rM, TransferTimeEM_MaxDV*24*3600, muS, 'pro' );
-maxDVe2mDVdep = DV_EM{MaxDVcol,3}(MaxDVindexROW,MaxDVindexCol)
-maxDVe2mDVarr = DV_EM{MaxDVcol,4}(MaxDVindexROW,MaxDVindexCol)
-maxDVe2m = V_EM{MaxDVrow,4}(1)
+maxDVe2mDVdep = DV_EM{MaxDVcol,3}(MaxDVindexROW,MaxDVindexCol);
+maxDVe2mDVarr = DV_EM{MaxDVcol,4}(MaxDVindexROW,MaxDVindexCol);
+maxDVe2m = V_EM{MaxDVrow,4}(1);
 
 % Plot Earth-to-Mars orbits (after obtaining heliocentric COEs for all three orbits)
 % Graph Transfer Orbit, Earth Orbit, and Mars orbit all on one 3d orbit plot
-[COEtransfer] = COEFromRV(rE,LambertV1)
-[COEearth] = COEFromRV(rE,vE)
-[COEmars] = COEFromRV(rM,vM)
-Plot3DOrbit( COEtransfer, muS, 0, TransferTimeEM_MaxDV, 15 )
-Plot3DOrbit( COEearth, muS, 0, 365.256, 15 )
-Plot3DOrbit( COEmars, muS, 0, 686.971, 15 )
 
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,LambertV1,muS);
+coeL = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,vE,muS);
+coeE = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,vM,muS);
+coeM = [a,inc,W,w,e,th];
+%Plot3DOrbit( COEtransfer, muS, 0, TransferTimeEM_MaxDV, 15 )
+
+%Plot3DOrbit( COEearth, muS, 0, 365.256, 15 )
+
+A = Plot3DOrbit( coeM, muS, 0, 686.971 );
+
+AA = Plot3DOrbit( coeE, muS, 0, 365.256, A );
+
+Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MaxDV*86400, AA );
 % End of Earth-to-Mars
 
-MaxDVindexROW = V_ME{MinDVcol,5}(1)
-MaxDVindexCol = V_ME{MinDVcol,5}(2)
+
+MaxDVindexROW = V_ME{MinDVcol,5}(1);
+MaxDVindexCol = V_ME{MinDVcol,5}(2);
 
 % Mars To Earth
-Mdep = MAXdvExactDateME
-Earr = Mdep+TransferTimeME_MaxDV
+Mdep = MAXdvExactDateME;
+Earr = Mdep+TransferTimeME_MaxDV;
 [rM, vM, ~, ~, ~] = PlanetData(4, year(Mdep), month(Mdep), day(Mdep),hour(Mdep),minute(Mdep),second(Mdep));
 [rE, vE, ~, ~, ~] = PlanetData(3, year(Earr), month(Earr), day(Earr), hour(Earr), minute(Earr), second(Earr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rM, rE, TransferTimeME_MaxDV*24*3600, muS, 'pro' );
-maxDVm2eDVdep = DV_ME{MaxDVcol,3}(MaxDVindexROW,MaxDVindexCol)
-maxDVm2eDVarr = DV_ME{MaxDVcol,4}(MaxDVindexROW,MaxDVindexCol)
-maxDVm2e = V_ME{MaxDVcol,4}(1)
+maxDVm2eDVdep = DV_ME{MaxDVcol,3}(MaxDVindexROW,MaxDVindexCol);
+maxDVm2eDVarr = DV_ME{MaxDVcol,4}(MaxDVindexROW,MaxDVindexCol);
+maxDVm2e = V_ME{MaxDVcol,4}(1);
 
-roundtripDV4MAX = maxDVe2m+maxDVm2e
+roundtripDV4MAX = maxDVe2m+maxDVm2e;
 
 % Plot Mars-to-Earth orbits (after obtaining heliocentric COEs for all three orbits)
 % Graph Transfer Orbit, Earth Orbit, and Mars orbit all on one 3d orbit plot
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,LambertV1,muS);
+coeL = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,vE,muS);
+coeE = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,vM,muS);
+coeM = [a,inc,W,w,e,th];
+
+B = Plot3DOrbit( coeM, muS, 0, 686.971 );
+
+BB = Plot3DOrbit( coeE, muS, 0, 365.256, B );
+
+Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MaxDV*86400, BB );
 
 toc
 
