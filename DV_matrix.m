@@ -46,6 +46,8 @@ else
     for i = 1:I
         DV{i,1} = S(i);
         DV{i,2} = zeros(K,J);
+        DV{i,3} = zeros(K,J);
+        DV{i,4} = zeros(K,J);
     end
 end
 warning('This function return a EMPTY cell array to store the value!')
