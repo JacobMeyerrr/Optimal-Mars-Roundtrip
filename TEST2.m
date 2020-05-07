@@ -379,6 +379,7 @@ Marr = Edep+TransferTimeEM_MinDV;
 [rM, vM, ~, ~, ~] = PlanetData(4, year(Marr), month(Marr), day(Marr), hour(Marr), minute(Marr), second(Marr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rE, rM, TransferTimeEM_MinDV*24*3600, muS, 'pro' );
+LambertV1_EM = LambertV1;
 minDVe2mDVdep = DV_EM{MinDVcol,3}(MinDVindexROW,MinDVindexCol);
 minDVe2mDVarr = DV_EM{MinDVcol,4}(MinDVindexROW,MinDVindexCol);
 
@@ -415,6 +416,7 @@ Earr = Mdep+TransferTimeME_MinDV;
 [rE, vE, ~, ~, ~] = PlanetData(3, year(Earr), month(Earr), day(Earr), hour(Earr), minute(Earr), second(Earr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rM, rE, TransferTimeME_MinDV*24*3600, muS, 'pro' );
+LambertV1_ME = LambertV1;
 minDVm2eDVdep = DV_ME{MinDVcol,3}(MinDVindexROW,MinDVindexCol);
 minDVm2eDVarr = DV_ME{MinDVcol,4}(MinDVindexROW,MinDVindexCol);
 
@@ -442,7 +444,8 @@ CC = Plot3DOrbit( coeE, muS, 0, 365.256, C );
 Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MinDV*86400, CC );
 
 
-%%% Graphs and shit later, show the orbit, include this data in DV "1-4" table
+%%% Graphs and shit here, show the orbit, include this data in DV "1-4" table
+EM_speed_round(Edep,Mdep,TransferTimeEM_MinDV,TransferTimeME_MinDV,18,LambertV1_EM,LambertV1_ME,"Trajectories For Lowest DeltaV Non-Hohmann Transfer")
 
 %% MAXIMUM DELTAV STUFF!!!!!
 disp("........................RUNNING IT AGAIN......................")
@@ -467,6 +470,7 @@ Marr = Edep+TransferTimeEM_MaxDV;
 [rM, vM, ~, ~, ~] = PlanetData(4, year(Marr), month(Marr), day(Marr), hour(Marr), minute(Marr), second(Marr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rE, rM, TransferTimeEM_MaxDV*24*3600, muS, 'pro' );
+LambertV1_EM = LambertV1;
 maxDVe2mDVdep = DV_EM{MaxDVcol,3}(MaxDVindexROW,MaxDVindexCol);
 maxDVe2mDVarr = DV_EM{MaxDVcol,4}(MaxDVindexROW,MaxDVindexCol);
 maxDVe2m = V_EM{MaxDVrow,4}(1);
@@ -504,6 +508,7 @@ Earr = Mdep+TransferTimeME_MaxDV;
 [rE, vE, ~, ~, ~] = PlanetData(3, year(Earr), month(Earr), day(Earr), hour(Earr), minute(Earr), second(Earr));
             
 [LambertV1,LambertV2,~] = LambertSolverND( rM, rE, TransferTimeME_MaxDV*24*3600, muS, 'pro' );
+LambertV1_ME = LambertV1;
 maxDVm2eDVdep = DV_ME{MaxDVcol,3}(MaxDVindexROW,MaxDVindexCol);
 maxDVm2eDVarr = DV_ME{MaxDVcol,4}(MaxDVindexROW,MaxDVindexCol);
 maxDVm2e = V_ME{MaxDVcol,4}(1);
@@ -528,6 +533,8 @@ BB = Plot3DOrbit( coeE, muS, 0, 365.256, B );
 
 Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MaxDV*86400, BB );
 
+EM_speed_round(Edep,Mdep,TransferTimeEM_MaxDV,TransferTimeME_MaxDV,19,LambertV1_EM,LambertV1_ME,"Trajectories For Highest DeltaV Non-Hohmann Transfer")
+
 % r = [rM';rM';rE']
 % v = [LambertV1';vM';vE']
 % t = {86400*[0:1:TransferTimeME_MaxDV] 86400*[0:1:687] 86400*[0:1:366]}
@@ -543,25 +550,90 @@ Plot3DOrbit( coeL, muS, 0, TransferTimeEM_MaxDV*86400, BB );
 % *(Fastest Trafser time = least amount of time off of Earth)
 
 % Find two windows that have the least time spent in space
+TimeInSpace = zeros(5,7)+inf;
+for i=1:length(DatesEM)
+    for j=1:length(DatesME)
+        if(DatesEM(i)+TOF(V_EM{i,3}(1))/(24*3600)<DatesME(j))
+             TimeInSpace(i,j) = seconds(DatesME(j) - DatesEM(i));
+        else
+            TotDVmax(i,j) = NaN;
+        end
+    end
+end
+DepWindow = DatesEM(4); % hardcoded after observing for loop result
+RetWindow = DatesME(4); % hardcoded after observing for loop result
+TimeInSpace(4,4)/86400; % window (middle limit) for time of flight
 
 % find the exact dates that lead to the overall least time spent in space
-
+BestEarthDepartureDate = DepWindow + 200 % add 200 days (leave AFAP)
+BestMarsDepDate = RetWindow-200 % subtract 200 days (return ASAP)
 
 % Fastest transfer time earth to mars calculations
+Edep = BestEarthDepartureDate
+Marr = Edep+TOF(21)/86400;
+[rE, vE, ~, ~, ~] = PlanetData(3, year(Edep), month(Edep), day(Edep),hour(Edep),minute(Edep),second(Edep));
+[rM, vM, ~, ~, ~] = PlanetData(4, year(Marr), month(Marr), day(Marr), hour(Marr), minute(Marr), second(Marr));
+            
+[LambertV1,LambertV2,~] = LambertSolverND( rE, rM, TOF(21), muS, 'pro' );
+LambertV1_EM = LambertV1;
+mintimeDVe2mDVdep = DV_EM{4,3}(21,21);
+mintimeDVe2mDVarr = DV_EM{4,4}(21,21);
+mintimeDVe2m = DV_EM{4,2}(21,21);
 
 % Fastest transfer time Earth to Mars graphs
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,LambertV1,muS);
+coeL = [a,inc,W,w,e,th];
 
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,vE,muS);
+coeE = [a,inc,W,w,e,th];
+
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,vM,muS);
+coeM = [a,inc,W,w,e,th];
+%Plot3DOrbit( COEtransfer, muS, 0, TransferTimeEM_MaxDV, 15 )
+
+%Plot3DOrbit( COEearth, muS, 0, 365.256, 15 )
+
+A = Plot3DOrbit( coeM, muS, 0, 686.971 );
+
+AA = Plot3DOrbit( coeE, muS, 0, 365.256, A );
+
+Plot3DOrbit( coeL, muS, 0, TOF(21), AA );
 
 % Fastest transfer time mars to earth calculations
+Mdep = BestMarsDepDate;
+Earr = Mdep+TOF(21)/86400;
+[rM, vM, ~, ~, ~] = PlanetData(4, year(Mdep), month(Mdep), day(Mdep),hour(Mdep),minute(Mdep),second(Mdep));
+[rE, vE, ~, ~, ~] = PlanetData(3, year(Earr), month(Earr), day(Earr), hour(Earr), minute(Earr), second(Earr));
+            
+[LambertV1,LambertV2,~] = LambertSolverND( rM, rE, TOF(21), muS, 'pro' );
+LambertV1_ME = LambertV1;
+mintimeDVm2eDVdep = DV_ME{4,3}(21,1);
+mintimeDVm2eDVarr = DV_ME{4,4}(21,1);
+mintimeDVm2e = DV_ME{4,2}(21,1);
+
 
 % Fastest transfer time mars to Earth graphs
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,LambertV1,muS);
+coeL = [a,inc,W,w,e,th];
 
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rE,vE,muS);
+coeE = [a,inc,W,w,e,th];
 
+[a,inc,W,w,e,th,~,~,~] = OrbitalElementsFromRV(rM,vM,muS);
+coeM = [a,inc,W,w,e,th];
+
+B = Plot3DOrbit( coeM, muS, 0, 686.971 );
+
+BB = Plot3DOrbit( coeE, muS, 0, 365.256, B );
+
+Plot3DOrbit( coeL, muS, 0, TOF(21), BB );
+
+EM_speed_round(BestEarthDepartureDate,BestMarsDepDate,TOF(21)/86400,TOF(21)/86400,21,LambertV1_EM,LambertV1_ME,"Trajectories To Spend The Least Time off of Earth*")
 
 
 
 %% Hohmann Case Plot
-HohmannPlot(19)
+HohmannPlot(22)
 
 %% DV table
 
